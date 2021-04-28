@@ -106,13 +106,5 @@ describe('RallyV1CreatorCoinFactory', () => {
         create2Address
       )
     })
-
-    // const coinContractFactory = await ethers.getContractFactory(
-    //   'RallyV1CreatorCoin'
-    // )
-    // const coin = coinContractFactory.attach(create2Address)
-    // expect(coin.factory()).to.eventually.eq(factory.address)
-    // expect(coin.coinGuid()).to.eventually.eq(bytes32CoinGuid)
-    // })
   })
 })
