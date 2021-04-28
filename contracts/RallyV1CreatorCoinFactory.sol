@@ -9,18 +9,35 @@ import "./RallyV1CreatorCoinDeployer.sol";
 contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   mapping(bytes32 => address) public getCreatorCoin;
 
-  event CreatorCoinDeployed(bytes32 coinGuid, address indexed creatorCoin);
+  event CreatorCoinDeployed(
+    bytes32 coinGuidHash,
+    address indexed creatorCoin,
+    string coinGuid,
+    string name,
+    string symbol
+  );
 
-  function deployCreatorCoin(bytes32 coinGuid)
+  function deployCreatorCoin(
+    string memory coinGuid,
+    string memory name,
+    string memory symbol
+  ) external onlyOwner returns (address creatorCoin) {
+    bytes32 coinGuidHash = keccak256(abi.encode(coinGuid));
+
+    require(getCreatorCoin[coinGuidHash] == address(0), "already deployed");
+
+    creatorCoin = deploy(address(this), coinGuidHash, coinGuid, name, symbol);
+
+    getCreatorCoin[coinGuidHash] = creatorCoin;
+    emit CreatorCoinDeployed(coinGuidHash, creatorCoin, coinGuid, name, symbol);
+  }
+
+  function getCreatorCoinFromGuid(string memory coinGuid)
     external
-    onlyOwner
+    view
     returns (address creatorCoin)
   {
-    require(getCreatorCoin[coinGuid] == address(0), "already deployed");
-
-    creatorCoin = deploy(address(this), coinGuid);
-
-    getCreatorCoin[coinGuid] = creatorCoin;
-    emit CreatorCoinDeployed(coinGuid, creatorCoin);
+    bytes32 coinGuidHash = keccak256(abi.encode(coinGuid));
+    creatorCoin = getCreatorCoin[coinGuidHash];
   }
 }

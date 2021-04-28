@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-import { utils } from 'ethers'
+import { ContractTransaction, utils } from 'ethers'
 import { getCreate2Address } from '@ethersproject/address'
 import { ethers, waffle } from 'hardhat'
 import { RallyV1CreatorCoinFactory } from '../typechain/RallyV1CreatorCoinFactory'
@@ -65,40 +65,54 @@ describe('RallyV1CreatorCoinFactory', () => {
   })
 
   describe('#deployCreatorCoin', () => {
-    it('succeeds for a new coin guid', async () => {
-      const bytes32CoinGuid = utils.formatBytes32String('some-guid')
+    let name: string
+    let symbol: string
+    let coinGuid: string
+    let coinGuidHash: string
+    let create2Address: string
+    let create: Promise<ContractTransaction>
 
-      const constructorArgumentsEncoded = utils.defaultAbiCoder.encode(
-        ['bytes32'],
-        [bytes32CoinGuid]
+    beforeEach('deploy factory', async () => {
+      name = 'token'
+      symbol = 'tkn'
+      coinGuid = 'some-guid'
+
+      coinGuidHash = utils.keccak256(
+        utils.defaultAbiCoder.encode(['string'], [coinGuid])
       )
 
-      const create2Address = getCreate2Address(
+      create2Address = getCreate2Address(
         factory.address,
-        utils.keccak256(constructorArgumentsEncoded),
+        coinGuidHash,
         utils.keccak256(coinBytecode)
       )
+      create = factory.deployCreatorCoin(coinGuid, name, symbol)
+    })
 
-      const create = factory.deployCreatorCoin(bytes32CoinGuid)
-
+    it('emits the event with the correct args', async () => {
       await expect(create)
         .to.emit(factory, 'CreatorCoinDeployed')
-        .withArgs(bytes32CoinGuid, create2Address)
+        .withArgs(coinGuidHash, create2Address, coinGuid, name, symbol)
+    })
 
+    it('fails if already deployed with the same guid', async () => {
       await expect(
-        factory.deployCreatorCoin(bytes32CoinGuid)
+        factory.deployCreatorCoin(coinGuid, name, symbol)
       ).to.be.revertedWith('already deployed')
+    })
 
-      expect(factory.getCreatorCoin(bytes32CoinGuid)).to.eventually.eq(
+    it('factory address matches calculated address', async () => {
+      expect(factory.getCreatorCoinFromGuid(coinGuid)).to.eventually.eq(
         create2Address
       )
-
-      const coinContractFactory = await ethers.getContractFactory(
-        'RallyV1CreatorCoin'
-      )
-      const coin = coinContractFactory.attach(create2Address)
-      expect(coin.factory()).to.eventually.eq(factory.address)
-      expect(coin.coinGuid()).to.eventually.eq(bytes32CoinGuid)
     })
+
+    // const coinContractFactory = await ethers.getContractFactory(
+    //   'RallyV1CreatorCoin'
+    // )
+    // const coin = coinContractFactory.attach(create2Address)
+    // expect(coin.factory()).to.eventually.eq(factory.address)
+    // expect(coin.coinGuid()).to.eventually.eq(bytes32CoinGuid)
+    // })
   })
 })
