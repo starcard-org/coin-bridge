@@ -3,3 +3,5 @@ typechain/
 .vscode/
 cache/
 artifacts/
+coverage/
+coverage.json

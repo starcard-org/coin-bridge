@@ -4,6 +4,7 @@ dotEnvConfig()
 import { HardhatUserConfig } from 'hardhat/types'
 
 import 'hardhat-typechain'
+import 'solidity-coverage'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'

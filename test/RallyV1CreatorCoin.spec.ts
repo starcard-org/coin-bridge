@@ -20,7 +20,17 @@ describe('RallyV1CreatorCoin', () => {
     const factoryFactory = await ethers.getContractFactory(
       'RallyV1CreatorCoinFactory'
     )
-    return (await factoryFactory.deploy()) as RallyV1CreatorCoinFactory
+    const factory = (await factoryFactory.deploy()) as RallyV1CreatorCoinFactory
+
+    await factory.deployCreatorCoin(defaultGuid, defaultName, defaultSymbol)
+
+    const coinAddress = await factory.getCreatorCoinFromGuid(defaultGuid)
+
+    const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
+
+    const creatorCoin = coinFactory.attach(coinAddress) as RallyV1CreatorCoin
+
+    return { factory, creatorCoin }
   }
 
   let loadFixture: ReturnType<typeof createFixtureLoader>
@@ -34,23 +44,28 @@ describe('RallyV1CreatorCoin', () => {
   })
 
   beforeEach('deploy factory', async () => {
-    factory = await loadFixture(fixture)
+    ;({ factory, creatorCoin } = await loadFixture(fixture))
   })
 
-  beforeEach('deploy creator coin', async () => {
-    const create = await factory.deployCreatorCoin(
-      defaultGuid,
-      defaultName,
-      defaultSymbol
-    )
+  describe('#mint', () => {
+    it('fails to mint with non bridge address', async () => {
+      const fakeAddress = '0x1000000000000000000000000000000000000000'
+      await factory.setBridge(fakeAddress)
 
-    const coinAddress = await factory.getCreatorCoinFromGuid(defaultGuid)
+      expect(creatorCoin.mint(wallet.address, 100)).to.be.revertedWith(
+        'only bridge'
+      )
+    })
 
-    const coinContractFactory = await ethers.getContractFactory(
-      'RallyV1CreatorCoin'
-    )
+    it('mints when called from bridge address', async () => {
+      await factory.setBridge(wallet.address)
 
-    creatorCoin = coinContractFactory.attach(coinAddress) as RallyV1CreatorCoin
+      expect(await creatorCoin.balanceOf(other.address)).to.eq(0)
+
+      await creatorCoin.connect(wallet).mint(other.address, 100)
+
+      expect(await creatorCoin.balanceOf(other.address)).to.eq(100)
+    })
   })
 
   describe('#getters', () => {

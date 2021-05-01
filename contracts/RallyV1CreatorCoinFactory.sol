@@ -5,9 +5,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RallyV1CreatorCoinDeployer.sol";
 
 /// @title Creator Coin V1 Factory
-/// @notice Deploys and tracks the Creator Coin ERC20 contracts for bridging individual coins from rally sidechain to eth mainnet
+/// @notice Deploys and tracks the Creator Coin ERC20 contracts for bridging
+/// individual coins from rally sidechain to ethereum mainnet
 contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   mapping(bytes32 => address) public getCreatorCoin;
+  address private _bridge;
 
   event CreatorCoinDeployed(
     bytes32 coinGuidHash,
@@ -39,5 +41,15 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   {
     bytes32 coinGuidHash = keccak256(abi.encode(coinGuid));
     creatorCoin = getCreatorCoin[coinGuidHash];
+  }
+
+  function setBridge(address newBridge) external onlyOwner {
+    require(newBridge != address(0), "invalid bridge address");
+    require(_bridge == address(0), "bridge already set");
+    _bridge = newBridge;
+  }
+
+  function bridge() external view returns (address) {
+    return _bridge;
   }
 }

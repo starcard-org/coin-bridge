@@ -41,6 +41,42 @@ describe('RallyV1CreatorCoinFactory', () => {
     expect(await waffle.provider.getCode(factory.address)).toMatchSnapshot()
   })
 
+  describe('#setBridge', () => {
+    it('sets the bridge address', async () => {
+      expect(await factory.bridge()).to.eq(
+        '0x0000000000000000000000000000000000000000'
+      )
+      const fakeAddress = '0x1000000000000000000000000000000000000000'
+      await factory.setBridge(fakeAddress)
+      expect(factory.bridge()).to.eventually.eq(fakeAddress)
+    })
+
+    it('cannot set the bridge address twice', async () => {
+      const fakeAddress1 = '0x1000000000000000000000000000000000000000'
+      const fakeAddress2 = '0x2000000000000000000000000000000000000000'
+      await factory.setBridge(fakeAddress1)
+      expect(await factory.bridge()).to.eq(fakeAddress1)
+
+      await expect(factory.setBridge(fakeAddress2)).to.be.revertedWith(
+        'bridge already set'
+      )
+
+      expect(await factory.bridge()).to.eq(fakeAddress1)
+    })
+
+    it('cannot set the bridge address to 0x0', async () => {
+      const fakeAddress1 = '0x1000000000000000000000000000000000000000'
+      const zeroAddress = '0x0000000000000000000000000000000000000000'
+      await factory.setBridge(fakeAddress1)
+
+      await expect(factory.setBridge(zeroAddress)).to.be.revertedWith(
+        'invalid bridge address'
+      )
+
+      expect(await factory.bridge()).to.eq(fakeAddress1)
+    })
+  })
+
   describe('#transferOwnership', () => {
     it('fails if caller is not owner', async () => {
       await expect(factory.connect(other).transferOwnership(wallet.address)).to
