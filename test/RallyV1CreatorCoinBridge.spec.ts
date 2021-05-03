@@ -7,7 +7,7 @@ import expect from './shared/expect'
 
 const createFixtureLoader = waffle.createFixtureLoader
 
-describe('RallyV1CreatorCoin', () => {
+describe('RallyV1CreatorCoinBridge', () => {
   const defaultName = 'token'
   const defaultSymbol = 'tkn'
   const defaultGuid = '28ba2e93-b83a-4c1b-936f-99bc91c264ee'
@@ -51,6 +51,32 @@ describe('RallyV1CreatorCoin', () => {
 
   beforeEach('deploy contracts', async () => {
     ;({ factory, creatorCoin, bridge } = await loadFixture(fixture))
+  })
+
+  describe('#AccessControl', () => {
+    it('deployer has admin role', async () => {
+      expect(
+        bridge.hasRole(await bridge.ADMIN_ROLE(), wallet.address)
+      ).to.eventually.eq(true)
+    })
+
+    it('deployer has minter role', async () => {
+      expect(
+        bridge.hasRole(await bridge.MINTER_ROLE(), wallet.address)
+      ).to.eventually.eq(true)
+    })
+
+    it('minter admin is admin', async () => {
+      expect(bridge.getRoleAdmin(await bridge.MINTER_ROLE())).to.eventually.eq(
+        await bridge.ADMIN_ROLE()
+      )
+    })
+
+    it('admin admin is admin', async () => {
+      expect(bridge.getRoleAdmin(await bridge.ADMIN_ROLE())).to.eventually.eq(
+        await bridge.ADMIN_ROLE()
+      )
+    })
   })
 
   describe('#getCreatorCoinFromGuid', () => {
