@@ -21,6 +21,7 @@ contract RallyV1CreatorCoin is
   address public immutable factory;
   bytes32 public immutable coinGuidHash;
 
+  uint256 private _totalSideChainSupply;
   /// @dev A modifier which checks that the caller is the bridge contract.
   /// we trust the factory to keep track of the bridge contract address
   /// in order for this contract to remain ignorant.
@@ -56,6 +57,15 @@ contract RallyV1CreatorCoin is
   /// name.
   function symbol() public view virtual override returns (string memory) {
     return _symbol;
+  }
+
+  /// @dev we periodically update the total supply in the sidechain
+  function totalSidechainSupply() public view returns (uint256) {
+    return _totalSideChainSupply;
+  }
+
+  function setTotalSidechainSupply(uint256 amount) public onlyBridge {
+    _totalSideChainSupply = amount;
   }
 
   /// This function reverts if the caller is not the bridge contract

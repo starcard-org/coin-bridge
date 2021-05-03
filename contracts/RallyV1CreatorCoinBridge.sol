@@ -84,10 +84,13 @@ contract RallyV1CreatorCoinBridge is AccessControl {
   function bridgeToMainnet(
     string memory coinGuid,
     address recipient,
-    uint256 amount
+    uint256 amount,
+    uint256 newTotalSidechainSupply
   ) external onlyMinter {
     RallyV1CreatorCoin creatorCoin = getCreatorCoinFromGuid(coinGuid);
     creatorCoin.mint(recipient, amount);
+
+    creatorCoin.setTotalSidechainSupply(newTotalSidechainSupply);
 
     emit CreatorCoinBridgedToMainnet(
       address(creatorCoin),

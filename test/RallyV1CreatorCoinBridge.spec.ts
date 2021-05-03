@@ -69,7 +69,7 @@ describe('RallyV1CreatorCoin', () => {
 
   describe('#bridgeToSidechain', () => {
     beforeEach('load other wallet with a balance', async () => {
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100)
+      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
     })
 
     it('decreases balance and total supply', async () => {
@@ -126,39 +126,51 @@ describe('RallyV1CreatorCoin', () => {
   describe('#bridgeToMainnet', () => {
     it('fails if caller is not minter', async () => {
       await expect(
-        bridge.connect(other).bridgeToMainnet(defaultGuid, other.address, 100)
+        bridge
+          .connect(other)
+          .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
       ).to.be.revertedWith('only minter')
     })
 
     it('mints into address if called from minter', async () => {
       expect(await creatorCoin.balanceOf(other.address)).to.eq(0)
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100)
+      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
       expect(await creatorCoin.balanceOf(other.address)).to.eq(100)
 
       await expect(
-        bridge.connect(other).bridgeToMainnet(defaultGuid, other.address, 100)
+        bridge
+          .connect(other)
+          .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
       ).to.be.revertedWith('only minter')
 
       await bridge.grantRole(await bridge.MINTER_ROLE(), other.address)
 
       await bridge
         .connect(other)
-        .bridgeToMainnet(defaultGuid, other.address, 100)
+        .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
       expect(await creatorCoin.balanceOf(other.address)).to.eq(200)
     })
 
     it('increases total supply', async () => {
       expect(await creatorCoin.totalSupply()).to.eq(0)
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100)
+      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
       expect(await creatorCoin.totalSupply()).to.eq(100)
     })
 
     it('emits a bridged event', async () => {
       const amount = 100
 
-      await expect(bridge.bridgeToMainnet(defaultGuid, other.address, amount))
+      await expect(
+        bridge.bridgeToMainnet(defaultGuid, other.address, amount, 1000)
+      )
         .to.emit(bridge, 'CreatorCoinBridgedToMainnet')
         .withArgs(creatorCoin.address, defaultGuid, other.address, amount)
+    })
+
+    it('updates total sidechain supply', async () => {
+      expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+      expect(await creatorCoin.totalSidechainSupply()).to.eq(1000)
     })
   })
 })

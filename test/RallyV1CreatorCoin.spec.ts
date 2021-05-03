@@ -94,4 +94,26 @@ describe('RallyV1CreatorCoin', () => {
       expect(creatorCoin.factory()).to.eventually.eq(factory.address)
     })
   })
+
+  describe('#setters', () => {
+    describe('#setTotalSidechainSupply', () => {
+      it('sets total when called from bridge address', async () => {
+        await factory.setBridge(wallet.address)
+
+        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+
+        await creatorCoin.connect(wallet).setTotalSidechainSupply(1000)
+
+        expect(await creatorCoin.totalSidechainSupply()).to.eq(1000)
+      })
+
+      it('reverts when called from non bridge address', async () => {
+        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+        expect(
+          creatorCoin.connect(wallet).setTotalSidechainSupply(1000)
+        ).to.be.revertedWith('only bridge')
+        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+      })
+    })
+  })
 })
