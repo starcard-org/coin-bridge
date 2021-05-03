@@ -1,17 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./RallyV1CreatorCoin.sol";
 import "./RallyV1CreatorCoinFactory.sol";
 
 /// @title Creator Coin V1 Bridge
 /// @notice The main user interaction contract for moving Creator Coins
 /// between rally sidechain and etherum mainnet
-contract RallyV1CreatorCoinBridge is Ownable {
+contract RallyV1CreatorCoinBridge is AccessControl {
   /// @dev The contract address of the Rally V1 Creator Coin factory for
   /// looking up contract addresses of CreatorCoins
   address public immutable factory;
+
+  /// @dev The identifier of the role which maintains other roles.
+  bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
+
+  /// @dev The identifier of the role which allows accounts to mint tokens.
+  bytes32 public constant MINTER_ROLE = keccak256("MINTER");
 
   event CreatorCoinBridgedToSideChain(
     address indexed creatorCoin,
@@ -27,8 +33,19 @@ contract RallyV1CreatorCoinBridge is Ownable {
     uint256 amount
   );
 
+  /// @dev A modifier which checks that the caller has the minter role.
+  modifier onlyMinter() {
+    require(hasRole(MINTER_ROLE, msg.sender), "only minter");
+    _;
+  }
+
   constructor(address _factory) {
     factory = _factory;
+
+    _setupRole(ADMIN_ROLE, msg.sender);
+    _setupRole(MINTER_ROLE, msg.sender);
+    _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
+    _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
   }
 
   function getCreatorCoinFromGuid(string memory coinGuid)
@@ -68,7 +85,7 @@ contract RallyV1CreatorCoinBridge is Ownable {
     string memory coinGuid,
     address recipient,
     uint256 amount
-  ) external onlyOwner {
+  ) external onlyMinter {
     RallyV1CreatorCoin creatorCoin = getCreatorCoinFromGuid(coinGuid);
     creatorCoin.mint(recipient, amount);
 

@@ -124,16 +124,27 @@ describe('RallyV1CreatorCoin', () => {
   })
 
   describe('#bridgeToMainnet', () => {
-    it('fails if caller is not owner', async () => {
+    it('fails if caller is not minter', async () => {
       await expect(
         bridge.connect(other).bridgeToMainnet(defaultGuid, other.address, 100)
-      ).to.be.reverted
+      ).to.be.revertedWith('only minter')
     })
 
-    it('mints into address if called from owner', async () => {
+    it('mints into address if called from minter', async () => {
       expect(await creatorCoin.balanceOf(other.address)).to.eq(0)
       await bridge.bridgeToMainnet(defaultGuid, other.address, 100)
       expect(await creatorCoin.balanceOf(other.address)).to.eq(100)
+
+      await expect(
+        bridge.connect(other).bridgeToMainnet(defaultGuid, other.address, 100)
+      ).to.be.revertedWith('only minter')
+
+      await bridge.grantRole(await bridge.MINTER_ROLE(), other.address)
+
+      await bridge
+        .connect(other)
+        .bridgeToMainnet(defaultGuid, other.address, 100)
+      expect(await creatorCoin.balanceOf(other.address)).to.eq(200)
     })
 
     it('increases total supply', async () => {
