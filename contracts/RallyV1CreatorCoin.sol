@@ -38,6 +38,8 @@ contract RallyV1CreatorCoin is
       _name,
       _symbol
     ) = RallyV1CreatorCoinDeployer(msg.sender).parameters();
+
+    _setupDecimals(6);
   }
 
   /// @dev Returns the sidechain coin guid.
