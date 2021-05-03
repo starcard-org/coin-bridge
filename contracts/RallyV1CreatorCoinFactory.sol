@@ -45,7 +45,6 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
 
   function setBridge(address newBridge) external onlyOwner {
     require(newBridge != address(0), "invalid bridge address");
-    require(_bridge == address(0), "bridge already set");
     _bridge = newBridge;
   }
 

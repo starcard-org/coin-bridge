@@ -51,17 +51,15 @@ describe('RallyV1CreatorCoinFactory', () => {
       expect(factory.bridge()).to.eventually.eq(fakeAddress)
     })
 
-    it('cannot set the bridge address twice', async () => {
+    it('can set the bridge address more than once', async () => {
       const fakeAddress1 = '0x1000000000000000000000000000000000000000'
       const fakeAddress2 = '0x2000000000000000000000000000000000000000'
       await factory.setBridge(fakeAddress1)
       expect(await factory.bridge()).to.eq(fakeAddress1)
 
-      await expect(factory.setBridge(fakeAddress2)).to.be.revertedWith(
-        'bridge already set'
-      )
+      await factory.setBridge(fakeAddress2)
 
-      expect(await factory.bridge()).to.eq(fakeAddress1)
+      expect(await factory.bridge()).to.eq(fakeAddress2)
     })
 
     it('cannot set the bridge address to 0x0', async () => {
