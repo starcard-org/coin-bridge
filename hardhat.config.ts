@@ -21,7 +21,8 @@ const config: HardhatUserConfig = {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`
     },
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: [`0x${process.env.RINKEBY_PRIVATE_KEY}`]
     },
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`
