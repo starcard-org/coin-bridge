@@ -31,11 +31,11 @@ describe('RallyV1CreatorCoinBridge', () => {
 
     const creatorCoin = coinFactory.attach(coinAddress) as RallyV1CreatorCoin
 
-    const brigdeFactory = await ethers.getContractFactory(
+    const bridgeFactory = await ethers.getContractFactory(
       'RallyV1CreatorCoinBridge'
     )
 
-    const bridge = (await brigdeFactory.deploy(
+    const bridge = (await bridgeFactory.deploy(
       factory.address
     )) as RallyV1CreatorCoinBridge
 
