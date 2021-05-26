@@ -14,14 +14,14 @@ contract RallyV1CreatorCoin is
   ERC20Permit("rally-cc"),
   ERC20Burnable
 {
-  string private _coinGuid;
+  string private _sidechainPricingCurveId;
   string private _name;
   string private _symbol;
 
   address public immutable factory;
-  bytes32 public immutable coinGuidHash;
+  bytes32 public immutable curveIdHash;
 
-  uint256 private _totalSideChainSupply;
+  uint256 private _currentSideChainSupply;
   /// @dev A modifier which checks that the caller is the bridge contract.
   /// we trust the factory to keep track of the bridge contract address
   /// in order for this contract to remain ignorant.
@@ -34,8 +34,8 @@ contract RallyV1CreatorCoin is
   constructor() {
     (
       factory,
-      coinGuidHash,
-      _coinGuid,
+      curveIdHash,
+      _sidechainPricingCurveId,
       _name,
       _symbol
     ) = RallyV1CreatorCoinDeployer(msg.sender).parameters();
@@ -43,9 +43,14 @@ contract RallyV1CreatorCoin is
     _setupDecimals(6);
   }
 
-  /// @dev Returns the sidechain coin guid.
-  function coinGuid() public view virtual returns (string memory) {
-    return _coinGuid;
+  /// @dev Returns the sidechain coin pricingCurveId.
+  function sidechainPricingCurveId()
+    public
+    view
+    virtual
+    returns (string memory)
+  {
+    return _sidechainPricingCurveId;
   }
 
   /// @dev Returns the name of the token.
@@ -60,12 +65,12 @@ contract RallyV1CreatorCoin is
   }
 
   /// @dev we periodically update the total supply in the sidechain
-  function totalSidechainSupply() public view returns (uint256) {
-    return _totalSideChainSupply;
+  function currentSidechainSupply() public view returns (uint256) {
+    return _currentSideChainSupply;
   }
 
-  function setTotalSidechainSupply(uint256 amount) public onlyBridge {
-    _totalSideChainSupply = amount;
+  function updateCurrentSidechainSupply(uint256 amount) public onlyBridge {
+    _currentSideChainSupply = amount;
   }
 
   /// This function reverts if the caller is not the bridge contract

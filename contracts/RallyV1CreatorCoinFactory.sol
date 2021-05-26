@@ -8,39 +8,52 @@ import "./RallyV1CreatorCoinDeployer.sol";
 /// @notice Deploys and tracks the Creator Coin ERC20 contracts for bridging
 /// individual coins from rally sidechain to ethereum mainnet
 contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
-  mapping(bytes32 => address) public getCreatorCoin;
+  mapping(bytes32 => address) public getMainnetCreatorCoinAddress;
   address private _bridge;
 
   event CreatorCoinDeployed(
-    bytes32 coinGuidHash,
-    address indexed creatorCoin,
-    string coinGuid,
+    bytes32 curveIdHash,
+    address indexed mainnetCreatorCoinAddress,
+    string sidechainPricingCurveId,
     string name,
     string symbol
   );
 
   function deployCreatorCoin(
-    string memory coinGuid,
+    string memory sidechainPricingCurveId,
     string memory name,
     string memory symbol
-  ) external onlyOwner returns (address creatorCoin) {
-    bytes32 coinGuidHash = keccak256(abi.encode(coinGuid));
+  ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
+    bytes32 curveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
 
-    require(getCreatorCoin[coinGuidHash] == address(0), "already deployed");
+    require(
+      getMainnetCreatorCoinAddress[curveIdHash] == address(0),
+      "already deployed"
+    );
 
-    creatorCoin = deploy(address(this), coinGuidHash, coinGuid, name, symbol);
+    mainnetCreatorCoinAddress = deploy(
+      address(this),
+      curveIdHash,
+      sidechainPricingCurveId,
+      name,
+      symbol
+    );
 
-    getCreatorCoin[coinGuidHash] = creatorCoin;
-    emit CreatorCoinDeployed(coinGuidHash, creatorCoin, coinGuid, name, symbol);
+    getMainnetCreatorCoinAddress[curveIdHash] = mainnetCreatorCoinAddress;
+    emit CreatorCoinDeployed(
+      curveIdHash,
+      mainnetCreatorCoinAddress,
+      sidechainPricingCurveId,
+      name,
+      symbol
+    );
   }
 
-  function getCreatorCoinFromGuid(string memory coinGuid)
-    external
-    view
-    returns (address creatorCoin)
-  {
-    bytes32 coinGuidHash = keccak256(abi.encode(coinGuid));
-    creatorCoin = getCreatorCoin[coinGuidHash];
+  function getCreatorCoinFromSidechainPricingCurveId(
+    string memory sidechainPricingCurveId
+  ) external view returns (address creatorCoin) {
+    bytes32 curveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
+    creatorCoin = getMainnetCreatorCoinAddress[curveIdHash];
   }
 
   function setBridge(address newBridge) external onlyOwner {

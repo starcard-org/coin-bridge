@@ -10,12 +10,12 @@
       },
       {
         "internalType": "bytes32",
-        "name": "coinGuidHash",
+        "name": "curveIdHash",
         "type": "bytes32"
       },
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       },
       {

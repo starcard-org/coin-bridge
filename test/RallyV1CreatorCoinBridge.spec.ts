@@ -10,7 +10,7 @@ const createFixtureLoader = waffle.createFixtureLoader
 describe('RallyV1CreatorCoinBridge', () => {
   const defaultName = 'token'
   const defaultSymbol = 'tkn'
-  const defaultGuid = '28ba2e93-b83a-4c1b-936f-99bc91c264ee'
+  const defaultPricingCurveId = '28ba2e93-b83a-4c1b-936f-99bc91c264ee'
   const [wallet, other] = waffle.provider.getWallets()
 
   let factory: RallyV1CreatorCoinFactory
@@ -23,9 +23,15 @@ describe('RallyV1CreatorCoinBridge', () => {
     )
     const factory = (await factoryFactory.deploy()) as RallyV1CreatorCoinFactory
 
-    await factory.deployCreatorCoin(defaultGuid, defaultName, defaultSymbol)
+    await factory.deployCreatorCoin(
+      defaultPricingCurveId,
+      defaultName,
+      defaultSymbol
+    )
 
-    const coinAddress = await factory.getCreatorCoinFromGuid(defaultGuid)
+    const coinAddress = await factory.getCreatorCoinFromSidechainPricingCurveId(
+      defaultPricingCurveId
+    )
 
     const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
 
@@ -79,23 +85,29 @@ describe('RallyV1CreatorCoinBridge', () => {
     })
   })
 
-  describe('#getCreatorCoinFromGuid', () => {
-    it('gets the creatorcoin associated with a guid', async () => {
-      expect(bridge.getCreatorCoinFromGuid(defaultGuid)).to.eventually.eq(
-        creatorCoin.address
-      )
+  describe('#getCreatorCoinFromSidechainPricingCurveId', () => {
+    it('gets the creatorcoin associated with a pricing curve id', async () => {
+      expect(
+        bridge.getCreatorCoinFromSidechainPricingCurveId(defaultPricingCurveId)
+      ).to.eventually.eq(creatorCoin.address)
     })
 
-    it('reverts on undeployed guid', async () => {
+    it('reverts on undeployed pricing curve id', async () => {
       await expect(
-        bridge.getCreatorCoinFromGuid('garbage-guid')
+        bridge.getCreatorCoinFromSidechainPricingCurveId('garbage-id')
       ).to.be.revertedWith('coin not deployed')
     })
   })
 
   describe('#bridgeToSidechain', () => {
     beforeEach('load other wallet with a balance', async () => {
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+      await bridge.bridgeToMainnet(
+        defaultPricingCurveId,
+        'sender',
+        other.address,
+        100,
+        1000
+      )
     })
 
     it('decreases balance and total supply', async () => {
@@ -134,7 +146,8 @@ describe('RallyV1CreatorCoinBridge', () => {
         bridge
           .connect(other)
           .bridgeToSidechain(
-            defaultGuid,
+            defaultPricingCurveId,
+            'sidechain-id',
             amount,
             ethers.constants.MaxUint256,
             v,
@@ -143,7 +156,13 @@ describe('RallyV1CreatorCoinBridge', () => {
           )
       )
         .to.emit(bridge, 'CreatorCoinBridgedToSideChain')
-        .withArgs(creatorCoin.address, defaultGuid, other.address, amount)
+        .withArgs(
+          creatorCoin.address,
+          defaultPricingCurveId,
+          other.address,
+          'sidechain-id',
+          amount
+        )
       expect(await creatorCoin.totalSupply()).to.eq(0)
       expect(await creatorCoin.balanceOf(other.address)).to.eq(0)
     })
@@ -154,32 +173,62 @@ describe('RallyV1CreatorCoinBridge', () => {
       await expect(
         bridge
           .connect(other)
-          .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+          .bridgeToMainnet(
+            defaultPricingCurveId,
+            'sender',
+            other.address,
+            100,
+            1000
+          )
       ).to.be.revertedWith('only minter')
     })
 
     it('mints into address if called from minter', async () => {
       expect(await creatorCoin.balanceOf(other.address)).to.eq(0)
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+      await bridge.bridgeToMainnet(
+        defaultPricingCurveId,
+        'sender',
+        other.address,
+        100,
+        1000
+      )
       expect(await creatorCoin.balanceOf(other.address)).to.eq(100)
 
       await expect(
         bridge
           .connect(other)
-          .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+          .bridgeToMainnet(
+            defaultPricingCurveId,
+            'sender',
+            other.address,
+            100,
+            1000
+          )
       ).to.be.revertedWith('only minter')
 
       await bridge.grantRole(await bridge.MINTER_ROLE(), other.address)
 
       await bridge
         .connect(other)
-        .bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+        .bridgeToMainnet(
+          defaultPricingCurveId,
+          'sender',
+          other.address,
+          100,
+          1000
+        )
       expect(await creatorCoin.balanceOf(other.address)).to.eq(200)
     })
 
     it('increases total supply', async () => {
       expect(await creatorCoin.totalSupply()).to.eq(0)
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
+      await bridge.bridgeToMainnet(
+        defaultPricingCurveId,
+        'sender',
+        other.address,
+        100,
+        1000
+      )
       expect(await creatorCoin.totalSupply()).to.eq(100)
     })
 
@@ -187,16 +236,34 @@ describe('RallyV1CreatorCoinBridge', () => {
       const amount = 100
 
       await expect(
-        bridge.bridgeToMainnet(defaultGuid, other.address, amount, 1000)
+        bridge.bridgeToMainnet(
+          defaultPricingCurveId,
+          'sender',
+          other.address,
+          amount,
+          1000
+        )
       )
         .to.emit(bridge, 'CreatorCoinBridgedToMainnet')
-        .withArgs(creatorCoin.address, defaultGuid, other.address, amount)
+        .withArgs(
+          creatorCoin.address,
+          defaultPricingCurveId,
+          'sender',
+          other.address,
+          amount
+        )
     })
 
-    it('updates total sidechain supply', async () => {
-      expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
-      await bridge.bridgeToMainnet(defaultGuid, other.address, 100, 1000)
-      expect(await creatorCoin.totalSidechainSupply()).to.eq(1000)
+    it('updates current sidechain supply', async () => {
+      expect(await creatorCoin.currentSidechainSupply()).to.eq(0)
+      await bridge.bridgeToMainnet(
+        defaultPricingCurveId,
+        'sender',
+        other.address,
+        100,
+        1000
+      )
+      expect(await creatorCoin.currentSidechainSupply()).to.eq(1000)
     })
   })
 })

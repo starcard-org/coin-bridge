@@ -101,44 +101,44 @@ describe('RallyV1CreatorCoinFactory', () => {
   describe('#deployCreatorCoin', () => {
     let name: string
     let symbol: string
-    let coinGuid: string
-    let coinGuidHash: string
+    let coinPricingCurveId: string
+    let curveIdHash: string
     let create2Address: string
     let create: Promise<ContractTransaction>
 
     beforeEach('deploy factory', async () => {
       name = 'token'
       symbol = 'tkn'
-      coinGuid = 'some-guid'
+      coinPricingCurveId = 'some-curve-id'
 
-      coinGuidHash = utils.keccak256(
-        utils.defaultAbiCoder.encode(['string'], [coinGuid])
+      curveIdHash = utils.keccak256(
+        utils.defaultAbiCoder.encode(['string'], [coinPricingCurveId])
       )
 
       create2Address = getCreate2Address(
         factory.address,
-        coinGuidHash,
+        curveIdHash,
         utils.keccak256(coinBytecode)
       )
-      create = factory.deployCreatorCoin(coinGuid, name, symbol)
+      create = factory.deployCreatorCoin(coinPricingCurveId, name, symbol)
     })
 
     it('emits the event with the correct args', async () => {
       await expect(create)
         .to.emit(factory, 'CreatorCoinDeployed')
-        .withArgs(coinGuidHash, create2Address, coinGuid, name, symbol)
+        .withArgs(curveIdHash, create2Address, coinPricingCurveId, name, symbol)
     })
 
-    it('fails if already deployed with the same guid', async () => {
+    it('fails if already deployed with the same pricing curve id', async () => {
       await expect(
-        factory.deployCreatorCoin(coinGuid, name, symbol)
+        factory.deployCreatorCoin(coinPricingCurveId, name, symbol)
       ).to.be.revertedWith('already deployed')
     })
 
     it('factory address matches calculated address', async () => {
-      expect(factory.getCreatorCoinFromGuid(coinGuid)).to.eventually.eq(
-        create2Address
-      )
+      expect(
+        factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
+      ).to.eventually.eq(create2Address)
     })
   })
 })

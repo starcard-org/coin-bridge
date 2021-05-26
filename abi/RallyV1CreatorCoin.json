@@ -167,12 +167,12 @@
   },
   {
     "inputs": [],
-    "name": "coinGuid",
+    "name": "currentSidechainSupply",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "",
-        "type": "string"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -180,7 +180,7 @@
   },
   {
     "inputs": [],
-    "name": "coinGuidHash",
+    "name": "curveIdHash",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -359,21 +359,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setTotalSidechainSupply",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "symbol",
+    "name": "sidechainPricingCurveId",
     "outputs": [
       {
         "internalType": "string",
@@ -386,12 +373,12 @@
   },
   {
     "inputs": [],
-    "name": "totalSidechainSupply",
+    "name": "symbol",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "",
-        "type": "uint256"
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -460,6 +447,19 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateCurrentSidechainSupply",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }

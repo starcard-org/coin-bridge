@@ -10,7 +10,7 @@ const createFixtureLoader = waffle.createFixtureLoader
 describe('RallyV1CreatorCoin', () => {
   const defaultName = 'token'
   const defaultSymbol = 'tkn'
-  const defaultGuid = '28ba2e93-b83a-4c1b-936f-99bc91c264ee'
+  const defaultPricingCurveId = '28ba2e93-b83a-4c1b-936f-99bc91c264ee'
   const [wallet, other] = waffle.provider.getWallets()
 
   let factory: RallyV1CreatorCoinFactory
@@ -22,9 +22,15 @@ describe('RallyV1CreatorCoin', () => {
     )
     const factory = (await factoryFactory.deploy()) as RallyV1CreatorCoinFactory
 
-    await factory.deployCreatorCoin(defaultGuid, defaultName, defaultSymbol)
+    await factory.deployCreatorCoin(
+      defaultPricingCurveId,
+      defaultName,
+      defaultSymbol
+    )
 
-    const coinAddress = await factory.getCreatorCoinFromGuid(defaultGuid)
+    const coinAddress = await factory.getCreatorCoinFromSidechainPricingCurveId(
+      defaultPricingCurveId
+    )
 
     const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
 
@@ -79,15 +85,17 @@ describe('RallyV1CreatorCoin', () => {
       expect(creatorCoin.symbol()).to.eventually.eq(defaultSymbol)
     })
 
-    it('#coinGuid matches ', async () => {
-      expect(creatorCoin.coinGuid()).to.eventually.eq(defaultGuid)
+    it('#coinPricingCurveId matches ', async () => {
+      expect(creatorCoin.sidechainPricingCurveId()).to.eventually.eq(
+        defaultPricingCurveId
+      )
     })
 
-    it('#coinGuidHash matches ', async () => {
-      const coinGuidHash = utils.keccak256(
-        utils.defaultAbiCoder.encode(['string'], [defaultGuid])
+    it('#curveIdHash matches ', async () => {
+      const curveIdHash = utils.keccak256(
+        utils.defaultAbiCoder.encode(['string'], [defaultPricingCurveId])
       )
-      expect(creatorCoin.coinGuidHash()).to.eventually.eq(coinGuidHash)
+      expect(creatorCoin.curveIdHash()).to.eventually.eq(curveIdHash)
     })
 
     it('#factory matches ', async () => {
@@ -96,23 +104,23 @@ describe('RallyV1CreatorCoin', () => {
   })
 
   describe('#setters', () => {
-    describe('#setTotalSidechainSupply', () => {
+    describe('#updateCurrentSidechainSupply', () => {
       it('sets total when called from bridge address', async () => {
         await factory.setBridge(wallet.address)
 
-        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+        expect(await creatorCoin.currentSidechainSupply()).to.eq(0)
 
-        await creatorCoin.connect(wallet).setTotalSidechainSupply(1000)
+        await creatorCoin.connect(wallet).updateCurrentSidechainSupply(1000)
 
-        expect(await creatorCoin.totalSidechainSupply()).to.eq(1000)
+        expect(await creatorCoin.currentSidechainSupply()).to.eq(1000)
       })
 
       it('reverts when called from non bridge address', async () => {
-        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+        expect(await creatorCoin.currentSidechainSupply()).to.eq(0)
         expect(
-          creatorCoin.connect(wallet).setTotalSidechainSupply(1000)
+          creatorCoin.connect(wallet).updateCurrentSidechainSupply(1000)
         ).to.be.revertedWith('only bridge')
-        expect(await creatorCoin.totalSidechainSupply()).to.eq(0)
+        expect(await creatorCoin.currentSidechainSupply()).to.eq(0)
       })
     })
   })
