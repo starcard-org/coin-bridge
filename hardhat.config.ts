@@ -1,7 +1,7 @@
 import { config as dotEnvConfig } from 'dotenv'
 dotEnvConfig()
 
-import { HardhatUserConfig } from 'hardhat/types'
+import { HardhatUserConfig, NetworksUserConfig } from 'hardhat/types'
 
 import 'hardhat-typechain'
 import 'solidity-coverage'
@@ -10,28 +10,33 @@ import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-abi-exporter'
 
-const config: HardhatUserConfig = {
-  networks: {
-    hardhat: {
-      allowUnlimitedContractSize: false
-    },
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
-    },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`
-    },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [`0x${process.env.RINKEBY_PRIVATE_KEY}`]
-    },
-    goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`
-    },
-    kovan: {
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
-    }
+const networks: NetworksUserConfig = {
+  hardhat: {
+    allowUnlimitedContractSize: false
   },
+  mainnet: {
+    url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
+  },
+  ropsten: {
+    url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`
+  },
+  rinkeby: {
+    url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`
+  },
+  goerli: {
+    url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`
+  },
+  kovan: {
+    url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
+  }
+}
+
+if (!!process.env.RINKEBY_PRIVATE_KEY && !!networks.rinkeby) {
+  networks.rinkeby.accounts = [`0x${process.env.RINKEBY_PRIVATE_KEY}`]
+}
+
+const config: HardhatUserConfig = {
+  networks,
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
