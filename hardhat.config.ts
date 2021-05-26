@@ -8,6 +8,7 @@ import 'solidity-coverage'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
+import 'hardhat-abi-exporter'
 
 const config: HardhatUserConfig = {
   networks: {
@@ -50,6 +51,10 @@ const config: HardhatUserConfig = {
         bytecodeHash: 'none'
       }
     }
+  },
+  abiExporter: {
+    clear: true,
+    flat: true
   }
 }
 
