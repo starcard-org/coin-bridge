@@ -19,7 +19,7 @@ contract RallyV1CreatorCoin is
   string private _symbol;
 
   address public immutable factory;
-  bytes32 public immutable curveIdHash;
+  bytes32 public immutable pricingCurveIdHash;
 
   /// @dev Convenience amount that is set when minter bridges a coin
   /// to the mainnet, is eventually consistent with sidechain supply
@@ -37,7 +37,7 @@ contract RallyV1CreatorCoin is
   constructor() {
     (
       factory,
-      curveIdHash,
+      pricingCurveIdHash,
       _sidechainPricingCurveId,
       _name,
       _symbol

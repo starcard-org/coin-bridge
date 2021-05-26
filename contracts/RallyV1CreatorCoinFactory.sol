@@ -12,7 +12,7 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   address private _bridge;
 
   event CreatorCoinDeployed(
-    bytes32 curveIdHash,
+    bytes32 pricingCurveIdHash,
     address indexed mainnetCreatorCoinAddress,
     string sidechainPricingCurveId,
     string name,
@@ -24,24 +24,26 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     string memory name,
     string memory symbol
   ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
-    bytes32 curveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
+    bytes32 pricingCurveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
 
     require(
-      getMainnetCreatorCoinAddress[curveIdHash] == address(0),
+      getMainnetCreatorCoinAddress[pricingCurveIdHash] == address(0),
       "already deployed"
     );
 
     mainnetCreatorCoinAddress = deploy(
       address(this),
-      curveIdHash,
+      pricingCurveIdHash,
       sidechainPricingCurveId,
       name,
       symbol
     );
 
-    getMainnetCreatorCoinAddress[curveIdHash] = mainnetCreatorCoinAddress;
+    getMainnetCreatorCoinAddress[
+      pricingCurveIdHash
+    ] = mainnetCreatorCoinAddress;
     emit CreatorCoinDeployed(
-      curveIdHash,
+      pricingCurveIdHash,
       mainnetCreatorCoinAddress,
       sidechainPricingCurveId,
       name,
@@ -52,8 +54,10 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   function getCreatorCoinFromSidechainPricingCurveId(
     string memory sidechainPricingCurveId
   ) external view returns (address mainnetCreatorCoinAddress) {
-    bytes32 curveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
-    mainnetCreatorCoinAddress = getMainnetCreatorCoinAddress[curveIdHash];
+    bytes32 pricingCurveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
+    mainnetCreatorCoinAddress = getMainnetCreatorCoinAddress[
+      pricingCurveIdHash
+    ];
   }
 
   function setBridge(address newBridge) external onlyOwner {

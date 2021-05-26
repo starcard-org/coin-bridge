@@ -10,7 +10,7 @@
       },
       {
         "internalType": "bytes32",
-        "name": "curveIdHash",
+        "name": "pricingCurveIdHash",
         "type": "bytes32"
       },
       {

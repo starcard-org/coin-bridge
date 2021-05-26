@@ -5,7 +5,7 @@
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "curveIdHash",
+        "name": "pricingCurveIdHash",
         "type": "bytes32"
       },
       {
@@ -159,7 +159,7 @@
       },
       {
         "internalType": "bytes32",
-        "name": "curveIdHash",
+        "name": "pricingCurveIdHash",
         "type": "bytes32"
       },
       {
