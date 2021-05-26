@@ -91,11 +91,13 @@ describe('RallyV1CreatorCoin', () => {
       )
     })
 
-    it('#curveIdHash matches ', async () => {
-      const curveIdHash = utils.keccak256(
+    it('#pricingCurveIdHash matches ', async () => {
+      const pricingCurveIdHash = utils.keccak256(
         utils.defaultAbiCoder.encode(['string'], [defaultPricingCurveId])
       )
-      expect(creatorCoin.curveIdHash()).to.eventually.eq(curveIdHash)
+      expect(creatorCoin.pricingCurveIdHash()).to.eventually.eq(
+        pricingCurveIdHash
+      )
     })
 
     it('#factory matches ', async () => {
