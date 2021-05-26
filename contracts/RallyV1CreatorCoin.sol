@@ -21,7 +21,10 @@ contract RallyV1CreatorCoin is
   address public immutable factory;
   bytes32 public immutable curveIdHash;
 
+  /// @dev Convenience amount that is set when minter bridges a coin
+  /// to the mainnet, is eventually consistent with sidechain supply
   uint256 private _currentSideChainSupply;
+
   /// @dev A modifier which checks that the caller is the bridge contract.
   /// we trust the factory to keep track of the bridge contract address
   /// in order for this contract to remain ignorant.

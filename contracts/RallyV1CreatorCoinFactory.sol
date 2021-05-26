@@ -51,9 +51,9 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
 
   function getCreatorCoinFromSidechainPricingCurveId(
     string memory sidechainPricingCurveId
-  ) external view returns (address creatorCoin) {
+  ) external view returns (address mainnetCreatorCoinAddress) {
     bytes32 curveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
-    creatorCoin = getMainnetCreatorCoinAddress[curveIdHash];
+    mainnetCreatorCoinAddress = getMainnetCreatorCoinAddress[curveIdHash];
   }
 
   function setBridge(address newBridge) external onlyOwner {

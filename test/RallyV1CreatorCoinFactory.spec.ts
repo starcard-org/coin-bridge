@@ -102,7 +102,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     let name: string
     let symbol: string
     let coinPricingCurveId: string
-    let curveIdHash: string
+    let pricingCurveIdHash: string
     let create2Address: string
     let create: Promise<ContractTransaction>
 
@@ -111,13 +111,13 @@ describe('RallyV1CreatorCoinFactory', () => {
       symbol = 'tkn'
       coinPricingCurveId = 'some-curve-id'
 
-      curveIdHash = utils.keccak256(
+      pricingCurveIdHash = utils.keccak256(
         utils.defaultAbiCoder.encode(['string'], [coinPricingCurveId])
       )
 
       create2Address = getCreate2Address(
         factory.address,
-        curveIdHash,
+        pricingCurveIdHash,
         utils.keccak256(coinBytecode)
       )
       create = factory.deployCreatorCoin(coinPricingCurveId, name, symbol)
@@ -126,7 +126,13 @@ describe('RallyV1CreatorCoinFactory', () => {
     it('emits the event with the correct args', async () => {
       await expect(create)
         .to.emit(factory, 'CreatorCoinDeployed')
-        .withArgs(curveIdHash, create2Address, coinPricingCurveId, name, symbol)
+        .withArgs(
+          pricingCurveIdHash,
+          create2Address,
+          coinPricingCurveId,
+          name,
+          symbol
+        )
     })
 
     it('fails if already deployed with the same pricing curve id', async () => {

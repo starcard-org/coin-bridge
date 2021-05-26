@@ -35,7 +35,7 @@ contract RallyV1CreatorCoinDeployer {
     string memory sidechainPricingCurveId,
     string memory name,
     string memory symbol
-  ) internal returns (address creatorCoin) {
+  ) internal returns (address mainnetCreatorCoinAddress) {
     parameters = Parameters({
       factory: factory,
       curveIdHash: curveIdHash,
@@ -44,7 +44,9 @@ contract RallyV1CreatorCoinDeployer {
       symbol: symbol
     });
 
-    creatorCoin = address(new RallyV1CreatorCoin{ salt: curveIdHash }());
+    mainnetCreatorCoinAddress = address(
+      new RallyV1CreatorCoin{ salt: curveIdHash }()
+    );
     delete parameters;
   }
 }
