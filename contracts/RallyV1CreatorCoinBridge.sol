@@ -20,16 +20,18 @@ contract RallyV1CreatorCoinBridge is AccessControl {
   bytes32 public constant MINTER_ROLE = keccak256("MINTER");
 
   event CreatorCoinBridgedToSideChain(
-    address indexed creatorCoin,
-    string coinGuid,
-    address sender,
+    address indexed mainnetCoinAddress,
+    string sidechainPricingCurveId,
+    address mainnetSender,
+    string sidechainRecipientId,
     uint256 amount
   );
 
   event CreatorCoinBridgedToMainnet(
-    address indexed creatorCoin,
-    string coinGuid,
-    address recipient,
+    address indexed mainnetCoinAddress,
+    string sidechainPricingCurveId,
+    string sidechainSenderId,
+    address mainnetRecipient,
     uint256 amount
   );
 
@@ -48,54 +50,59 @@ contract RallyV1CreatorCoinBridge is AccessControl {
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
   }
 
-  function getCreatorCoinFromGuid(string memory coinGuid)
-    public
-    view
-    returns (RallyV1CreatorCoin creatorCoin)
-  {
-    address coinAddress =
-      RallyV1CreatorCoinFactory(factory).getCreatorCoinFromGuid(coinGuid);
+  function getCreatorCoinFromSidechainPricingCurveId(
+    string memory sidechainPricingCurveId
+  ) public view returns (RallyV1CreatorCoin mainnetCreatorCoin) {
+    address mainnetCoinAddress =
+      RallyV1CreatorCoinFactory(factory)
+        .getCreatorCoinFromSidechainPricingCurveId(sidechainPricingCurveId);
 
-    require(coinAddress != address(0), "coin not deployed");
+    require(mainnetCoinAddress != address(0), "coin not deployed");
 
-    creatorCoin = RallyV1CreatorCoin(coinAddress);
+    mainnetCreatorCoin = RallyV1CreatorCoin(mainnetCoinAddress);
   }
 
   function bridgeToSidechain(
-    string memory coinGuid,
+    string memory sidechainPricingCurveId,
+    string memory sidechainRecipientId,
     uint256 amount,
     uint256 deadline,
     uint8 v,
     bytes32 r,
     bytes32 s
   ) external {
-    RallyV1CreatorCoin creatorCoin = getCreatorCoinFromGuid(coinGuid);
+    RallyV1CreatorCoin creatorCoin =
+      getCreatorCoinFromSidechainPricingCurveId(sidechainPricingCurveId);
     creatorCoin.permit(msg.sender, address(this), amount, deadline, v, r, s);
     creatorCoin.burnFrom(msg.sender, amount);
 
     emit CreatorCoinBridgedToSideChain(
       address(creatorCoin),
-      coinGuid,
+      sidechainPricingCurveId,
       msg.sender,
+      sidechainRecipientId,
       amount
     );
   }
 
   function bridgeToMainnet(
-    string memory coinGuid,
-    address recipient,
+    string memory sidechainPricingCurveId,
+    string memory sidechainSenderId,
+    address mainnetRecipient,
     uint256 amount,
-    uint256 newTotalSidechainSupply
+    uint256 updatedCurrentSidechainSupply
   ) external onlyMinter {
-    RallyV1CreatorCoin creatorCoin = getCreatorCoinFromGuid(coinGuid);
-    creatorCoin.mint(recipient, amount);
+    RallyV1CreatorCoin creatorCoin =
+      getCreatorCoinFromSidechainPricingCurveId(sidechainPricingCurveId);
+    creatorCoin.mint(mainnetRecipient, amount);
 
-    creatorCoin.setTotalSidechainSupply(newTotalSidechainSupply);
+    creatorCoin.updateCurrentSidechainSupply(updatedCurrentSidechainSupply);
 
     emit CreatorCoinBridgedToMainnet(
       address(creatorCoin),
-      coinGuid,
-      recipient,
+      sidechainPricingCurveId,
+      sidechainSenderId,
+      mainnetRecipient,
       amount
     );
   }

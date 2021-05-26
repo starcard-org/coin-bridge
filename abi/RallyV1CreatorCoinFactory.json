@@ -5,19 +5,19 @@
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "coinGuidHash",
+        "name": "pricingCurveIdHash",
         "type": "bytes32"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "creatorCoin",
+        "name": "mainnetCreatorCoinAddress",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       },
       {
@@ -72,7 +72,7 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       },
       {
@@ -90,11 +90,30 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "creatorCoin",
+        "name": "mainnetCreatorCoinAddress",
         "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "sidechainPricingCurveId",
+        "type": "string"
+      }
+    ],
+    "name": "getCreatorCoinFromSidechainPricingCurveId",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "mainnetCreatorCoinAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -105,30 +124,11 @@
         "type": "bytes32"
       }
     ],
-    "name": "getCreatorCoin",
+    "name": "getMainnetCreatorCoinAddress",
     "outputs": [
       {
         "internalType": "address",
         "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "coinGuid",
-        "type": "string"
-      }
-    ],
-    "name": "getCreatorCoinFromGuid",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "creatorCoin",
         "type": "address"
       }
     ],
@@ -159,12 +159,12 @@
       },
       {
         "internalType": "bytes32",
-        "name": "coinGuidHash",
+        "name": "pricingCurveIdHash",
         "type": "bytes32"
       },
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       },
       {

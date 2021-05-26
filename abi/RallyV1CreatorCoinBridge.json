@@ -16,19 +16,25 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "creatorCoin",
+        "name": "mainnetCoinAddress",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sidechainSenderId",
         "type": "string"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "recipient",
+        "name": "mainnetRecipient",
         "type": "address"
       },
       {
@@ -47,20 +53,26 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "creatorCoin",
+        "name": "mainnetCoinAddress",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "sender",
+        "name": "mainnetSender",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sidechainRecipientId",
+        "type": "string"
       },
       {
         "indexed": false,
@@ -190,12 +202,17 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "sidechainSenderId",
         "type": "string"
       },
       {
         "internalType": "address",
-        "name": "recipient",
+        "name": "mainnetRecipient",
         "type": "address"
       },
       {
@@ -205,7 +222,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "newTotalSidechainSupply",
+        "name": "updatedCurrentSidechainSupply",
         "type": "uint256"
       }
     ],
@@ -218,7 +235,12 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "sidechainRecipientId",
         "type": "string"
       },
       {
@@ -269,15 +291,15 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "coinGuid",
+        "name": "sidechainPricingCurveId",
         "type": "string"
       }
     ],
-    "name": "getCreatorCoinFromGuid",
+    "name": "getCreatorCoinFromSidechainPricingCurveId",
     "outputs": [
       {
         "internalType": "contract RallyV1CreatorCoin",
-        "name": "creatorCoin",
+        "name": "mainnetCreatorCoin",
         "type": "address"
       }
     ],
