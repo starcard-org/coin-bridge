@@ -10,8 +10,10 @@ import "./RallyV1CreatorCoinFactory.sol";
 /// @title Creator Coin V1 ERC20
 /// @notice Single deployed ERC20 valid contract for each creator coin
 contract RallyV1CreatorCoin is
-  ERC20("rally-cc", "rcc"),
-  ERC20Permit("rally-cc"),
+  // note openzeppelin requires a static name and symbol but these are overridden with _name/_symbol
+  // (these strings do show up in the metamask permit modals etc though)
+  ERC20("Rally Creator Coin", "rcc"),
+  ERC20Permit("Rally Creator Coin"),
   ERC20Burnable
 {
   string private _sidechainPricingCurveId;

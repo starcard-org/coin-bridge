@@ -76,7 +76,7 @@ describe('RallyV1CreatorCoin', () => {
 
   describe('#getters', () => {
     it('name and symbol are not the default from contract inheritance', async () => {
-      expect(creatorCoin.name()).to.eventually.not.eq('rally-cc')
+      expect(creatorCoin.name()).to.eventually.not.eq('Rally Creator Coin')
       expect(creatorCoin.symbol()).to.eventually.not.eq('rcc')
     })
 
