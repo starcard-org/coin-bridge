@@ -10,6 +10,8 @@ import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-abi-exporter'
 
+import './tasks/deployCC'
+
 const networks: NetworksUserConfig = {
   hardhat: {
     allowUnlimitedContractSize: false
