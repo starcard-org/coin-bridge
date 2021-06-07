@@ -10,7 +10,13 @@ import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-abi-exporter'
 
-import './tasks/deployCC'
+import fs from 'fs'
+
+// don't import these if there's no typechain artifacts yet (e.g. the very first compile),
+// since it creates a circular dependency
+if (fs.existsSync('./typechain')) {
+  require('./tasks/deployCC')
+}
 
 const networks: NetworksUserConfig = {
   hardhat: {
