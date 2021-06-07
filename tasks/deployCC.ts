@@ -2,7 +2,6 @@ import { task } from 'hardhat/config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { RallyV1CreatorCoinBridge } from '../typechain/RallyV1CreatorCoinBridge'
 import { RallyV1CreatorCoinFactory } from '../typechain/RallyV1CreatorCoinFactory'
-import { RallyV1CreatorCoin } from '../typechain/RallyV1CreatorCoin'
 import { BigNumber } from '@ethersproject/bignumber'
 
 /* e.g.
@@ -55,34 +54,34 @@ task(
       bridgeAddress
     )) as RallyV1CreatorCoinBridge
 
-    await factoryContract.deployCreatorCoin(pricingCurveId, name, symbol)
-
-    const coinAddress = await factoryContract.getCreatorCoinFromSidechainPricingCurveId(
+    let coinAddress = await factoryContract.getCreatorCoinFromSidechainPricingCurveId(
       pricingCurveId
     )
 
-    const coinFactory = await hre.ethers.getContractFactory(
-      'RallyV1CreatorCoin'
-    )
+    if (coinAddress === '0x0000000000000000000000000000000000000000') {
+      await factoryContract.deployCreatorCoin(pricingCurveId, name, symbol)
 
-    const creatorCoin = coinFactory.attach(coinAddress) as RallyV1CreatorCoin
-
-    console.log('CC deployed')
-    console.log(
-      `Creator coin: ${name} (${symbol}) ${pricingCurveId} deployed to ${creatorCoin.address}`
-    )
-
-    const [signer] = await hre.ethers.getSigners()
-
-    await factoryContract.setBridge(signer.address)
-
-    // TODO: getSigner(bridge) doesn't work here? get "unknown account" error
-    await creatorCoin
-      .connect(signer)
-      .mint(
-        receiverAddress,
-        BigNumber.from(amount).mul(BigNumber.from(10).pow(6))
+      coinAddress = await factoryContract.getCreatorCoinFromSidechainPricingCurveId(
+        pricingCurveId
       )
 
-    await factoryContract.setBridge(bridgeContract.address)
+      console.log(
+        `Creator coin: ${name} (${symbol}) ${pricingCurveId} deployed to ${coinAddress}`
+      )
+    } else {
+      console.log(
+        `Creator coin: ${name} (${symbol}) ${pricingCurveId} already deployed to ${coinAddress}`
+      )
+    }
+
+    // getSigner(bridge) doesn't work so we can't call mint directly, but this does the same thing
+    await bridgeContract.bridgeToMainnet(
+      pricingCurveId,
+      'unusedsenderid',
+      receiverAddress,
+      BigNumber.from(amount).mul(BigNumber.from(10).pow(6)),
+      BigNumber.from(0) // updatedCurrentSidechainSupply - doesn't matter what we put here
+    )
+
+    console.log(`${amount} ${symbol} sent to ${receiverAddress}`)
   })
