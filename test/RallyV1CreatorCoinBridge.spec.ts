@@ -113,7 +113,7 @@ describe('RallyV1CreatorCoinBridge', () => {
     it('decreases balance and total supply', async () => {
       const amount = 100
       const domain = {
-        name: 'rally-cc',
+        name: 'Rally Creator Coin',
         version: '1',
         chainId: 31337,
         verifyingContract: creatorCoin.address
