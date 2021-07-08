@@ -220,6 +220,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     })
 
     it('deployed coin has matching decimals ', async () => {
+      await create
       const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
 
       const cc = new Contract(
