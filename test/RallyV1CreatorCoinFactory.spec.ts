@@ -208,7 +208,7 @@ describe('RallyV1CreatorCoinFactory', () => {
           coinPricingCurveId,
           name,
           symbol,
-          18
+          decimals
         )
       ).to.be.revertedWith('already deployed')
     })
@@ -235,7 +235,12 @@ describe('RallyV1CreatorCoinFactory', () => {
       await expect(
         factory
           .connect(other)
-          .deployCreatorCoinWithDecimals(coinPricingCurveId, name, symbol, 18)
+          .deployCreatorCoinWithDecimals(
+            coinPricingCurveId,
+            name,
+            symbol,
+            decimals
+          )
       ).to.be.revertedWith('caller is not the owner')
     })
   })
