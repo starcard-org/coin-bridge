@@ -20,7 +20,7 @@ describe('RallyV1CreatorCoinFactory', () => {
   }
 
   let loadFixture: ReturnType<typeof createFixtureLoader>
-  before('create fixture loader', async () => {
+  before('create fixture loader', () => {
     loadFixture = createFixtureLoader([wallet, other])
   })
 
@@ -34,7 +34,7 @@ describe('RallyV1CreatorCoinFactory', () => {
   })
 
   it('owner is deployer', async () => {
-    expect(factory.owner()).to.eventually.eq(wallet.address)
+    await expect(factory.owner()).to.eventually.eq(wallet.address)
   })
 
   xit('factory bytecode', async () => {
@@ -83,7 +83,7 @@ describe('RallyV1CreatorCoinFactory', () => {
 
     it('updates owner', async () => {
       await factory.transferOwnership(other.address)
-      expect(factory.owner()).to.eventually.eq(other.address)
+      await expect(factory.owner()).to.eventually.eq(other.address)
     })
 
     it('emits event', async () => {
@@ -106,7 +106,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     let create2Address: string
     let create: Promise<ContractTransaction>
 
-    beforeEach('deploy factory', async () => {
+    beforeEach('deploy factory', () => {
       name = 'token'
       symbol = 'tkn'
       coinPricingCurveId = 'some-curve-id'
@@ -143,7 +143,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     })
 
     it('factory address matches calculated address', async () => {
-      expect(
+      await expect(
         factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
       ).to.eventually.eq(create2Address)
     })
@@ -166,7 +166,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     let create2Address: string
     let create: Promise<ContractTransaction>
 
-    beforeEach('deploy factory', async () => {
+    beforeEach('deploy factory', () => {
       decimals = 18
       name = 'token'
       symbol = 'tkn'
@@ -214,7 +214,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     })
 
     it('factory address matches calculated address', async () => {
-      expect(
+      await expect(
         factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
       ).to.eventually.eq(create2Address)
     })
@@ -228,7 +228,7 @@ describe('RallyV1CreatorCoinFactory', () => {
         waffle.provider
       ) as RallyV1CreatorCoin
 
-      expect(cc.decimals()).to.eventually.eq(decimals)
+      await expect(cc.decimals()).to.eventually.eq(decimals)
     })
 
     it('fails if not owner', async () => {
