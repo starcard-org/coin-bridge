@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-import { ContractTransaction, utils } from 'ethers'
+import { Contract, ContractTransaction, utils } from 'ethers'
 import { getCreate2Address } from '@ethersproject/address'
 import { ethers, waffle } from 'hardhat'
-import { RallyV1CreatorCoinFactory } from '../typechain/RallyV1CreatorCoinFactory'
+import { RallyV1CreatorCoinFactory, RallyV1CreatorCoin } from '../typechain'
 import expect from './shared/expect'
 
 const createFixtureLoader = waffle.createFixtureLoader
@@ -129,10 +129,10 @@ describe('RallyV1CreatorCoinFactory', () => {
         .withArgs(
           pricingCurveIdHash,
           create2Address,
-          6,
           coinPricingCurveId,
           name,
-          symbol
+          symbol,
+          6
         )
     })
 
@@ -182,10 +182,10 @@ describe('RallyV1CreatorCoinFactory', () => {
         utils.keccak256(coinBytecode)
       )
       create = factory.deployCreatorCoinWithDecimals(
-        decimals,
         coinPricingCurveId,
         name,
-        symbol
+        symbol,
+        decimals
       )
     })
 
@@ -195,20 +195,20 @@ describe('RallyV1CreatorCoinFactory', () => {
         .withArgs(
           pricingCurveIdHash,
           create2Address,
-          decimals,
           coinPricingCurveId,
           name,
-          symbol
+          symbol,
+          decimals
         )
     })
 
     it('fails if already deployed with the same pricing curve id', async () => {
       await expect(
         factory.deployCreatorCoinWithDecimals(
-          18,
           coinPricingCurveId,
           name,
-          symbol
+          symbol,
+          18
         )
       ).to.be.revertedWith('already deployed')
     })
@@ -217,6 +217,26 @@ describe('RallyV1CreatorCoinFactory', () => {
       expect(
         factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
       ).to.eventually.eq(create2Address)
+    })
+
+    it('deployed coin has matching decimals ', async () => {
+      const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
+
+      const cc = new Contract(
+        create2Address,
+        coinFactory.interface,
+        waffle.provider
+      ) as RallyV1CreatorCoin
+
+      expect(cc.decimals()).to.eventually.eq(decimals)
+    })
+
+    it('fails if not owner', async () => {
+      await expect(
+        factory
+          .connect(other)
+          .deployCreatorCoinWithDecimals(coinPricingCurveId, name, symbol, 18)
+      ).to.be.revertedWith('caller is not the owner')
     })
   })
 })

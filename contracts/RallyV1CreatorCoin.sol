@@ -41,10 +41,10 @@ contract RallyV1CreatorCoin is
     (
       factory,
       pricingCurveIdHash,
-      decimals,
       _sidechainPricingCurveId,
       _name,
-      _symbol
+      _symbol,
+      decimals
     ) = RallyV1CreatorCoinDeployer(msg.sender).parameters();
 
     _setupDecimals(decimals);

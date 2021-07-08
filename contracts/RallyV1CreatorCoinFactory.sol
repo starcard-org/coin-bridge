@@ -14,23 +14,23 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   event CreatorCoinDeployed(
     bytes32 pricingCurveIdHash,
     address indexed mainnetCreatorCoinAddress,
-    uint8 decimals,
     string sidechainPricingCurveId,
     string name,
-    string symbol
+    string symbol,
+    uint8 decimals
   );
 
   function deployCreatorCoinWithDecimals(
-    uint8 decimals,
     string memory sidechainPricingCurveId,
     string memory name,
-    string memory symbol
+    string memory symbol,
+    uint8 decimals
   ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
     mainnetCreatorCoinAddress = _deployCreatorCoin(
-      decimals,
       sidechainPricingCurveId,
       name,
-      symbol
+      symbol,
+      decimals
     );
   }
 
@@ -40,18 +40,18 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     string memory symbol
   ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
     mainnetCreatorCoinAddress = _deployCreatorCoin(
-      6,
       sidechainPricingCurveId,
       name,
-      symbol
+      symbol,
+      6
     );
   }
 
   function _deployCreatorCoin(
-    uint8 decimals,
     string memory sidechainPricingCurveId,
     string memory name,
-    string memory symbol
+    string memory symbol,
+    uint8 decimals
   ) internal returns (address mainnetCreatorCoinAddress) {
     bytes32 pricingCurveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
 
@@ -63,10 +63,10 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     mainnetCreatorCoinAddress = deploy(
       address(this),
       pricingCurveIdHash,
-      decimals,
       sidechainPricingCurveId,
       name,
-      symbol
+      symbol,
+      decimals
     );
 
     getMainnetCreatorCoinAddress[
@@ -75,10 +75,10 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     emit CreatorCoinDeployed(
       pricingCurveIdHash,
       mainnetCreatorCoinAddress,
-      decimals,
       sidechainPricingCurveId,
       name,
-      symbol
+      symbol,
+      decimals
     );
   }
 

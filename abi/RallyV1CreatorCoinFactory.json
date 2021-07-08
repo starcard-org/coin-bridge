@@ -16,12 +16,6 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
         "internalType": "string",
         "name": "sidechainPricingCurveId",
         "type": "string"
@@ -37,6 +31,12 @@
         "internalType": "string",
         "name": "symbol",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
       }
     ],
     "name": "CreatorCoinDeployed",
@@ -106,11 +106,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
         "internalType": "string",
         "name": "sidechainPricingCurveId",
         "type": "string"
@@ -124,6 +119,11 @@
         "internalType": "string",
         "name": "symbol",
         "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
       }
     ],
     "name": "deployCreatorCoinWithDecimals",
@@ -203,11 +203,6 @@
         "type": "bytes32"
       },
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
         "internalType": "string",
         "name": "sidechainPricingCurveId",
         "type": "string"
@@ -221,6 +216,11 @@
         "internalType": "string",
         "name": "symbol",
         "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
