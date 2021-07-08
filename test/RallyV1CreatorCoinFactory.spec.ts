@@ -229,7 +229,9 @@ describe('RallyV1CreatorCoinFactory', () => {
         waffle.provider
       ) as RallyV1CreatorCoin
 
-      await expect(cc.decimals()).to.eventually.eq(decimals)
+      const foundDecimal = await cc.decimals()
+
+      expect(foundDecimal).to.eq(decimals)
     })
 
     it('fails if not owner', async () => {
