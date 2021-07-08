@@ -13,6 +13,7 @@ contract RallyV1CreatorCoinDeployer {
     string sidechainPricingCurveId;
     string name;
     string symbol;
+    uint8 decimals;
   }
 
   /// @notice Get the parameters to be used in constructing the coin, set transiently during coin creation.
@@ -34,14 +35,16 @@ contract RallyV1CreatorCoinDeployer {
     bytes32 pricingCurveIdHash,
     string memory sidechainPricingCurveId,
     string memory name,
-    string memory symbol
+    string memory symbol,
+    uint8 decimals
   ) internal returns (address mainnetCreatorCoinAddress) {
     parameters = Parameters({
       factory: factory,
       pricingCurveIdHash: pricingCurveIdHash,
       sidechainPricingCurveId: sidechainPricingCurveId,
       name: name,
-      symbol: symbol
+      symbol: symbol,
+      decimals: decimals
     });
 
     mainnetCreatorCoinAddress = address(

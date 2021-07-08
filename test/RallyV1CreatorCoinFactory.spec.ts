@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-import { ContractTransaction, utils } from 'ethers'
+import { Contract, ContractTransaction, utils } from 'ethers'
 import { getCreate2Address } from '@ethersproject/address'
 import { ethers, waffle } from 'hardhat'
-import { RallyV1CreatorCoinFactory } from '../typechain/RallyV1CreatorCoinFactory'
+import { RallyV1CreatorCoinFactory, RallyV1CreatorCoin } from '../typechain'
 import expect from './shared/expect'
 
 const createFixtureLoader = waffle.createFixtureLoader
@@ -20,7 +20,7 @@ describe('RallyV1CreatorCoinFactory', () => {
   }
 
   let loadFixture: ReturnType<typeof createFixtureLoader>
-  before('create fixture loader', async () => {
+  before('create fixture loader', () => {
     loadFixture = createFixtureLoader([wallet, other])
   })
 
@@ -34,7 +34,7 @@ describe('RallyV1CreatorCoinFactory', () => {
   })
 
   it('owner is deployer', async () => {
-    expect(factory.owner()).to.eventually.eq(wallet.address)
+    await expect(factory.owner()).to.eventually.eq(wallet.address)
   })
 
   xit('factory bytecode', async () => {
@@ -83,7 +83,7 @@ describe('RallyV1CreatorCoinFactory', () => {
 
     it('updates owner', async () => {
       await factory.transferOwnership(other.address)
-      expect(factory.owner()).to.eventually.eq(other.address)
+      await expect(factory.owner()).to.eventually.eq(other.address)
     })
 
     it('emits event', async () => {
@@ -106,7 +106,7 @@ describe('RallyV1CreatorCoinFactory', () => {
     let create2Address: string
     let create: Promise<ContractTransaction>
 
-    beforeEach('deploy factory', async () => {
+    beforeEach('deploy factory', () => {
       name = 'token'
       symbol = 'tkn'
       coinPricingCurveId = 'some-curve-id'
@@ -131,7 +131,8 @@ describe('RallyV1CreatorCoinFactory', () => {
           create2Address,
           coinPricingCurveId,
           name,
-          symbol
+          symbol,
+          6
         )
     })
 
@@ -142,9 +143,105 @@ describe('RallyV1CreatorCoinFactory', () => {
     })
 
     it('factory address matches calculated address', async () => {
-      expect(
+      await expect(
         factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
       ).to.eventually.eq(create2Address)
+    })
+
+    it('fails if not owner', async () => {
+      await expect(
+        factory
+          .connect(other)
+          .deployCreatorCoin(coinPricingCurveId, name, symbol)
+      ).to.be.revertedWith('caller is not the owner')
+    })
+  })
+
+  describe('#deployCreatorCoinWithDecimals', () => {
+    let decimals: number
+    let name: string
+    let symbol: string
+    let coinPricingCurveId: string
+    let pricingCurveIdHash: string
+    let create2Address: string
+    let create: Promise<ContractTransaction>
+
+    beforeEach('deploy factory', () => {
+      decimals = 18
+      name = 'token'
+      symbol = 'tkn'
+      coinPricingCurveId = 'some-curve-id'
+
+      pricingCurveIdHash = utils.keccak256(
+        utils.defaultAbiCoder.encode(['string'], [coinPricingCurveId])
+      )
+
+      create2Address = getCreate2Address(
+        factory.address,
+        pricingCurveIdHash,
+        utils.keccak256(coinBytecode)
+      )
+      create = factory.deployCreatorCoinWithDecimals(
+        coinPricingCurveId,
+        name,
+        symbol,
+        decimals
+      )
+    })
+
+    it('emits the event with the correct args', async () => {
+      await expect(create)
+        .to.emit(factory, 'CreatorCoinDeployed')
+        .withArgs(
+          pricingCurveIdHash,
+          create2Address,
+          coinPricingCurveId,
+          name,
+          symbol,
+          decimals
+        )
+    })
+
+    it('fails if already deployed with the same pricing curve id', async () => {
+      await expect(
+        factory.deployCreatorCoinWithDecimals(
+          coinPricingCurveId,
+          name,
+          symbol,
+          decimals
+        )
+      ).to.be.revertedWith('already deployed')
+    })
+
+    it('factory address matches calculated address', async () => {
+      await expect(
+        factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
+      ).to.eventually.eq(create2Address)
+    })
+
+    it('deployed coin has matching decimals ', async () => {
+      const coinFactory = await ethers.getContractFactory('RallyV1CreatorCoin')
+
+      const cc = new Contract(
+        create2Address,
+        coinFactory.interface,
+        waffle.provider
+      ) as RallyV1CreatorCoin
+
+      await expect(cc.decimals()).to.eventually.eq(decimals)
+    })
+
+    it('fails if not owner', async () => {
+      await expect(
+        factory
+          .connect(other)
+          .deployCreatorCoinWithDecimals(
+            coinPricingCurveId,
+            name,
+            symbol,
+            decimals
+          )
+      ).to.be.revertedWith('caller is not the owner')
     })
   })
 })
