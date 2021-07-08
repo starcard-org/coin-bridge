@@ -9,8 +9,8 @@ import "./RallyV1CreatorCoinFactory.sol";
 
 /// @title Creator Coin V1 ERC20
 /// @notice Single deployed ERC20 valid contract for each creator coin
+// note openzeppelin requires a static name and symbol but these are overridden with _name/_symbol
 contract RallyV1CreatorCoin is
-  // note openzeppelin requires a static name and symbol but these are overridden with _name/_symbol
   ERC20("rally-cc", "rcc"),
   // this permit string shows up in the metamask signing modals so make it friendlier
   ERC20Permit("Rally Creator Coin"),
@@ -37,15 +37,17 @@ contract RallyV1CreatorCoin is
   }
 
   constructor() {
+    uint8 decimals;
     (
       factory,
       pricingCurveIdHash,
+      decimals,
       _sidechainPricingCurveId,
       _name,
       _symbol
     ) = RallyV1CreatorCoinDeployer(msg.sender).parameters();
 
-    _setupDecimals(6);
+    _setupDecimals(decimals);
   }
 
   /// @dev Returns the sidechain coin pricingCurveId.

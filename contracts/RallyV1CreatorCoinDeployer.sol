@@ -10,6 +10,7 @@ contract RallyV1CreatorCoinDeployer {
   struct Parameters {
     address factory;
     bytes32 pricingCurveIdHash;
+    uint8 decimals;
     string sidechainPricingCurveId;
     string name;
     string symbol;
@@ -32,6 +33,7 @@ contract RallyV1CreatorCoinDeployer {
   function deploy(
     address factory,
     bytes32 pricingCurveIdHash,
+    uint8 decimals,
     string memory sidechainPricingCurveId,
     string memory name,
     string memory symbol
@@ -39,6 +41,7 @@ contract RallyV1CreatorCoinDeployer {
     parameters = Parameters({
       factory: factory,
       pricingCurveIdHash: pricingCurveIdHash,
+      decimals: decimals,
       sidechainPricingCurveId: sidechainPricingCurveId,
       name: name,
       symbol: symbol

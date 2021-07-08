@@ -14,16 +14,45 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
   event CreatorCoinDeployed(
     bytes32 pricingCurveIdHash,
     address indexed mainnetCreatorCoinAddress,
+    uint8 decimals,
     string sidechainPricingCurveId,
     string name,
     string symbol
   );
+
+  function deployCreatorCoinWithDecimals(
+    uint8 decimals,
+    string memory sidechainPricingCurveId,
+    string memory name,
+    string memory symbol
+  ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
+    mainnetCreatorCoinAddress = _deployCreatorCoin(
+      decimals,
+      sidechainPricingCurveId,
+      name,
+      symbol
+    );
+  }
 
   function deployCreatorCoin(
     string memory sidechainPricingCurveId,
     string memory name,
     string memory symbol
   ) external onlyOwner returns (address mainnetCreatorCoinAddress) {
+    mainnetCreatorCoinAddress = _deployCreatorCoin(
+      6,
+      sidechainPricingCurveId,
+      name,
+      symbol
+    );
+  }
+
+  function _deployCreatorCoin(
+    uint8 decimals,
+    string memory sidechainPricingCurveId,
+    string memory name,
+    string memory symbol
+  ) internal returns (address mainnetCreatorCoinAddress) {
     bytes32 pricingCurveIdHash = keccak256(abi.encode(sidechainPricingCurveId));
 
     require(
@@ -34,6 +63,7 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     mainnetCreatorCoinAddress = deploy(
       address(this),
       pricingCurveIdHash,
+      decimals,
       sidechainPricingCurveId,
       name,
       symbol
@@ -45,6 +75,7 @@ contract RallyV1CreatorCoinFactory is Ownable, RallyV1CreatorCoinDeployer {
     emit CreatorCoinDeployed(
       pricingCurveIdHash,
       mainnetCreatorCoinAddress,
+      decimals,
       sidechainPricingCurveId,
       name,
       symbol

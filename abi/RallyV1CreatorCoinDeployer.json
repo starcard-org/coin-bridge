@@ -14,6 +14,11 @@
         "type": "bytes32"
       },
       {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
+      },
+      {
         "internalType": "string",
         "name": "sidechainPricingCurveId",
         "type": "string"

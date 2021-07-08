@@ -129,6 +129,7 @@ describe('RallyV1CreatorCoinFactory', () => {
         .withArgs(
           pricingCurveIdHash,
           create2Address,
+          6,
           coinPricingCurveId,
           name,
           symbol
@@ -138,6 +139,77 @@ describe('RallyV1CreatorCoinFactory', () => {
     it('fails if already deployed with the same pricing curve id', async () => {
       await expect(
         factory.deployCreatorCoin(coinPricingCurveId, name, symbol)
+      ).to.be.revertedWith('already deployed')
+    })
+
+    it('factory address matches calculated address', async () => {
+      expect(
+        factory.getCreatorCoinFromSidechainPricingCurveId(coinPricingCurveId)
+      ).to.eventually.eq(create2Address)
+    })
+
+    it('fails if not owner', async () => {
+      await expect(
+        factory
+          .connect(other)
+          .deployCreatorCoin(coinPricingCurveId, name, symbol)
+      ).to.be.revertedWith('caller is not the owner')
+    })
+  })
+
+  describe('#deployCreatorCoinWithDecimals', () => {
+    let decimals: number
+    let name: string
+    let symbol: string
+    let coinPricingCurveId: string
+    let pricingCurveIdHash: string
+    let create2Address: string
+    let create: Promise<ContractTransaction>
+
+    beforeEach('deploy factory', async () => {
+      decimals = 18
+      name = 'token'
+      symbol = 'tkn'
+      coinPricingCurveId = 'some-curve-id'
+
+      pricingCurveIdHash = utils.keccak256(
+        utils.defaultAbiCoder.encode(['string'], [coinPricingCurveId])
+      )
+
+      create2Address = getCreate2Address(
+        factory.address,
+        pricingCurveIdHash,
+        utils.keccak256(coinBytecode)
+      )
+      create = factory.deployCreatorCoinWithDecimals(
+        decimals,
+        coinPricingCurveId,
+        name,
+        symbol
+      )
+    })
+
+    it('emits the event with the correct args', async () => {
+      await expect(create)
+        .to.emit(factory, 'CreatorCoinDeployed')
+        .withArgs(
+          pricingCurveIdHash,
+          create2Address,
+          decimals,
+          coinPricingCurveId,
+          name,
+          symbol
+        )
+    })
+
+    it('fails if already deployed with the same pricing curve id', async () => {
+      await expect(
+        factory.deployCreatorCoinWithDecimals(
+          18,
+          coinPricingCurveId,
+          name,
+          symbol
+        )
       ).to.be.revertedWith('already deployed')
     })
 
